@@ -1,0 +1,40 @@
+digraph G {
+  rankdir=TB; nodesep=0.35; ranksep=0.35; dpi=150;
+  node [fontname="Helvetica", fontsize=11, style="filled", fillcolor="#eef2ff", color="#4f46e5"];
+  edge [fontname="Helvetica", fontsize=10, color="#374151"];
+
+  start  [label="START", shape=oval, fillcolor="#c7d2fe"];
+  input  [label="Read tasks (name, hours, deadline, importance),\ntotal hours H and hours per day", shape=parallelogram];
+  valid  [label="Input valid?", shape=diamond, fillcolor="#fef9c3", color="#ca8a04"];
+  err    [label="Show error messages\nand stop", shape=box, fillcolor="#fee2e2", color="#dc2626"];
+  rank   [label="Compute ratio = importance / hours\nSort tasks by ratio (highest first)", shape=box];
+  init   [label="chosen = [ ]   used = 0", shape=box];
+  more   [label="Any task left\nin ranked list?", shape=diamond, fillcolor="#fef9c3", color="#ca8a04"];
+  next   [label="t = next task", shape=box];
+  q1     [label="Can t meet its deadline\neven if done first?", shape=diamond, fillcolor="#fef9c3", color="#ca8a04"];
+  q2     [label="used + hours(t) <= H ?", shape=diamond, fillcolor="#fef9c3", color="#ca8a04"];
+  q3     [label="Is chosen + t feasible\n(EDF order, no deadline missed)?", shape=diamond, fillcolor="#fef9c3", color="#ca8a04"];
+  defer  [label="Defer t\n(store the reason)", shape=box, fillcolor="#ffedd5", color="#ea580c"];
+  accept [label="Accept t:\nadd to chosen, used = used + hours(t)", shape=box, fillcolor="#dcfce7", color="#16a34a"];
+  order  [label="Sort chosen by Earliest Deadline First", shape=box];
+  plan   [label="Build timeline and day-by-day plan\nCompute remaining = H - used", shape=box];
+  show   [label="Display selected, deferred, totals,\nschedule and comparison", shape=parallelogram];
+  end    [label="END", shape=oval, fillcolor="#c7d2fe"];
+
+  start -> input -> valid;
+  valid -> err [label="No"];
+  valid -> rank [label="Yes"];
+  rank -> init -> more;
+  more -> next [label="Yes"];
+  more -> order [label="No"];
+  next -> q1;
+  q1 -> defer [label="No"];
+  q1 -> q2 [label="Yes"];
+  q2 -> defer [label="No"];
+  q2 -> q3 [label="Yes"];
+  q3 -> defer [label="No"];
+  q3 -> accept [label="Yes"];
+  defer -> more;
+  accept -> more;
+  order -> plan -> show -> end;
+}
